@@ -1,0 +1,6 @@
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.log filter=lfs diff=lfs merge=lfs -text
+*.gc filter=lfs diff=lfs merge=lfs -text
+*.vgc filter=lfs diff=lfs merge=lfs -text
+*.gz filter=lfs diff=lfs merge=lfs -text
+*.txt filter=lfs diff=lfs merge=lfs -text
