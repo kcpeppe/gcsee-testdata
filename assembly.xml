@@ -6,7 +6,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/gclogs</directory>
+            <directory>${project.basedir}/gcsee-gclogs</directory>
             <outputDirectory>/gclogs/</outputDirectory>
             <includes>
                 <include>streaming/**</include>
