@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.kodewerk.gcsee</groupId>
+    <artifactId>gcsee-testdata</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>GCSee Test Data</name>
+    <description>Resources for testing GCSee</description>
+    <url>https://github.com/kcpeppe/gcsee-testdata</url>
+
+    <organization>
+        <name>Kirk Pepperdine</name>
+        <url>http://www.kodewerk.com</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:kcpeppe/gcsee-testdata.git</connection>
+        <developerConnection>scm:git:git@github.com:kodewerk/gcsee-testdata.git</developerConnection>
+        <url>https://github.com/kodewerk/gcsee-testdata</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>kodewerk</id>
+            <name>Kirk Pepperdine</name>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/gcsee/gcsee-testdata/issues</url>
+    </issueManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <descriptors>assembly.xml</descriptors>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jreleaser</groupId>
+                <artifactId>jreleaser-maven-plugin</artifactId>
+                <version>1.23.0</version>
+                <configuration>
+                  <configFile>jreleaser.toml</configFile>
+                </configuration>
+              </plugin>
+        </plugins>
+    </build>
+
+</project>
