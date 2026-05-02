@@ -33,27 +33,59 @@ jobs:
 
       - name: Remove SNAPSHOT version
         run: |
-          ./mvnw -B versions:set -DremoveSnapshot
-          ./mvnw verify
+          ./mvnw -B versions:set -DremoveSnapshot -DgenerateBackupPoms=false
+          ./mvnw -B verify
 
       - name: Commit and tag version change
-        run : |
+        run: |
           release_version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
-          git add pom.xml 
-          git commit -m "Release for $release_version"
-          git push
+          echo "release_version=$release_version" >> "$GITHUB_ENV"
+          git add pom.xml
+          if git diff --cached --quiet; then
+            echo "pom.xml already at release version $release_version; skipping commit"
+          else
+            git commit -m "Release for $release_version"
+            git push
+          fi
+
+      # Stage pom + attached zip (and their .asc/.md5/.sha1) into a local
+      # file repository. JReleaser will pick these up from
+      # target/staging-deploy and upload them to the Central Portal.
+      - name: Stage Maven artifacts for Central
+        run: |
+          ./mvnw -B -DskipTests \
+                 -DaltDeploymentRepository=local::file:./target/staging-deploy \
+                 deploy
 
       - name: Publish the release
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
+          JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
+          JRELEASER_GPG_PUBLIC_KEY:  ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
+          JRELEASER_GPG_SECRET_KEY:  ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
+          JRELEASER_GPG_PASSPHRASE:  ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
         run: |
-          export  MAVEN_OPTS="-Xmx3g -XX:MaxMetaspaceSize=512m"
-          ./mvnw -B package jreleaser:release
+          export MAVEN_OPTS="-Xmx3g -XX:MaxMetaspaceSize=512m"
+          ./mvnw -B jreleaser:full-release
+
+      - name: Upload JReleaser logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jreleaser-log
+          path: |
+            target/jreleaser/trace.log
+            target/jreleaser/output.properties
 
       - name: Move to next snapshot version
         run: |
-          ./mvnw -B versions:set -DnextSnapshot
-          release_version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
+          ./mvnw -B versions:set -DnextSnapshot -DgenerateBackupPoms=false
+          next_version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
           git add pom.xml
-          git commit -m "Bump to next version $release_version"
-          git push
+          if git diff --cached --quiet; then
+            echo "pom.xml already at $next_version; nothing to commit"
+          else
+            git commit -m "Bump to next version $next_version"
+            git push
+          fi

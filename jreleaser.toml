@@ -1,18 +1,42 @@
+[project]
+name = "gcsee-testdata"
+description = "GCSEE test data"
+copyright = "2026 Kirk Pepperdine"
+
 [release.github]
 owner = "kcpeppe"
 name  = "gcsee-testdata"
 releaseName = "{{projectVersion}}"
 tagName  = "{{projectVersion}}"
 overwrite = true
-updateSections = ["ASSETS", "TITLE", "BODY"]
-files = true
 artifacts = true
 checksums = true
-signatures = false
+signatures = true
 
 [release.github.commitAuthor]
 name = "jreleaserbot"
 email = "jreleaser@kordamp.org"
 
-[[files.globs]]
-pattern = "target/gcsee-testdata-*.zip"
+# GPG signing — required by Maven Central. Reads the standard
+# JRELEASER_GPG_PUBLIC_KEY / JRELEASER_GPG_SECRET_KEY / JRELEASER_GPG_PASSPHRASE
+# environment variables from the workflow.
+[signing]
+active = "ALWAYS"
+armored = true
+verify = true
+
+# Deploy the staged Maven artifacts (pom + attached zip) to Maven Central
+# via the new Central Portal Publisher API. Reads
+# JRELEASER_MAVENCENTRAL_USERNAME / JRELEASER_MAVENCENTRAL_PASSWORD
+# (use the user-token pair from https://central.sonatype.com/account).
+[deploy.maven.mavenCentral.app]
+active = "ALWAYS"
+url = "https://central.sonatype.com/api/v1/publisher"
+applyMavenCentralRules = true
+stagingRepositories = ["target/staging-deploy"]
+
+[distributions.gcsee-testdata]
+type = "BINARY"
+
+[[distributions.gcsee-testdata.artifacts]]
+path = "target/gcsee-testdata-{{projectVersion}}.zip"
